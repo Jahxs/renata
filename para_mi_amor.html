@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ti, Mi Amor - Día de la Mujer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ff9a9e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Scene styles */
+        .scene {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .scene.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .scene-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Navigation */
+        .scene-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(233, 30, 99, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: #c2185b;
+            transform: translateY(-3px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Scene indicators */
+        .scene-indicators {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: #e91e63;
+            transform: scale(1.3);
+        }
+
+        h1 {
+            color: #e91e63;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #e91e63;
+            border-bottom: 2px solid #fce4ec;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Carta styles */
+        .carta {
+            line-height: 1.8;
+            color: #333;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .carta p {
+            margin-bottom: 15px;
+        }
+
+        .carta .saludo {
+            font-size: 1.5em;
+            color: #e91e63;
+            margin-bottom: 30px;
+        }
+
+        .firma {
+            text-align: right;
+            font-style: italic;
+            margin-top: 30px;
+            color: #e91e63;
+        }
+
+        /* Playlist styles */
+        .playlist {
+            list-style: none;
+        }
+
+        .playlist li {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .playlist li:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(233, 30, 99, 0.3);
+        }
+
+        .playlist .numero {
+            background: #e91e63;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .playlist .cancion {
+            flex: 1;
+        }
+
+        .playlist .artista {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Fotos styles */
+        .galeria {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .foto-placeholder {
+            background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            color: #e91e63;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .foto-placeholder:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(233, 30, 99, 0.3);
+        }
+
+        .foto-placeholder .icono {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        /* Corazones decorativos */
+        .corazon {
+            position: fixed;
+            font-size: 2em;
+            animation: flotar 3s ease-in-out infinite;
+            opacity: 0.6;
+            z-index: 0;
+        }
+
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .heart1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .heart2 { top: 20%; right: 10%; animation-delay: 1s; }
+        .heart3 { bottom: 30%; left: 8%; animation-delay: 2s; }
+        .heart4 { bottom: 10%; right: 5%; animation-delay: 0.5s; }
+
+        /* Welcome screen */
+        .welcome-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-screen h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .welcome-screen .emoji {
+            font-size: 5em;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .welcome-screen p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .btn-comenzar {
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(233, 30, 99, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn-comenzar:hover {
+            background: #c2185b;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 600px) {
+            .scene-card {
+                padding: 20px;
+                min-height: 350px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .welcome-screen h1 {
+                font-size: 2em;
+            }
+            .galeria {
+                grid-template-columns: 1fr;
+            }
+            .nav-btn {
+                padding: 12px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Corazones decorativos -->
+    <div class="corazon heart1">💖</div>
+    <div class="corazon heart2">💖</div>
+    <div class="corazon heart3">💖</div>
+    <div class="corazon heart4">💖</div>
+
+    <!-- Scene indicators -->
+    <div class="scene-indicators">
+        <div class="indicator" data-scene="0"></div>
+        <div class="indicator" data-scene="1"></div>
+        <div class="indicator" data-scene="2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Scene 0: Welcome -->
+        <div class="scene active" id="scene-0">
+            <div class="scene-card">
+                <div class="welcome-screen">
+                    <div class="emoji">💐</div>
+                    <h1>Para Ti, MiAmor 💖</h1>
+                    <p>8 de Marzo - Día Internacional de la Mujer</p>
+                    <p style="margin-bottom: 30px;">Quiero mostrarte algo que hice para ti, mi niña hermosa 🥺💖  ...</p>
+                    <button class="btn-comenzar" onclick="goToScene(1)">
+                        Comenzar 💖
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 1: Carta -->
+        <div class="scene" id="scene-1">
+            <div class="scene-card">
+                <h2>📝 Mi Carta para Ti</h2>
+                <div class="carta">
+                    <p class="saludo">Mi amor,</p>
+                    
+                    <p>Bueno, nose ni con que comenzar la carta la verdad amor, se que no nos hemos visto en una semana, pero te juro que te extraño cada dia de mi vida :(</p>
+                    
+                    <p>Pero aveces es bueno que pase esto, para saber que cuando el otro semestre, te vea todos los dias, se que no habra un solo dia que no quiera estar contigo</p>
+                    
+                    <p>De verdad me siento muy feliz a tu lado, se que hay veces que peleamos por huevadas, pero enserio teamo teamooooooo tanto miamor, quiero volver a verte, quiero volver a tenerte todos los dias...</p>
+                    
+                    <p>Eres una niña muy increible, y muy fantastica Renata te juro que me encantas demasiado demasiado, eres el amor de mi vida 💖, nose como explicarte que quiero lograr todo contigo y que APRENDAMOS A ENTENDER EL MUNDO JUNTOS :(💖</p>
+                    
+                    <p>En esta carta por el dia de la mujer, yo se que no te puedo ver hoy y darte cualquier cosa o un regalo por este dia, tal vez no sea lo mejor, pero no se me ocurria otra cosa que darte aunque sea una carta virutal :(, de verdad espero que te guste.</p>
+                    
+                    <p>Solo quiero decirte que teamo, y que enserio me haces muy feliz, FELIZ DIA A LA MUJER MAS HERMOSA DEL MUNDO 🥺💖 y esa, esa es mi novia.... </p>
+
+                    
+                    <p class="firma">Con todo mi amor,<br>Tu niño de ojos hermosos 💖</p>
+                </div>
+            </div>
+        </div>
+
+       <ul class="playlist">
+
+<!-- Scene 2: Playlist -->
+<div class="scene" id="scene-2">
+    <div class="scene-card">
+        <h2>🎵 Nuestra Playlist💖</h2>
+        <p style="margin-bottom: 20px; color: #666; text-align: center;">
+            Canciones que me recuerdan a ti Renata ...
+        </p>
+        
+        <ul class="playlist">
+
+            <li>
+                <span class="numero">1</span>
+                <a href="https://www.youtube.com/watch?v=q07Gd6Q-7dY" target="_blank" style="display:flex; align-items:center; text-decoration:none; color:inherit;">
+                    <img src="cancion1.jpeg" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px;">
+                    <div class="cancion">
+                        <strong>Kevin Kaarl - te quiero tanto</strong>
+                        <div class="artista">
+                            Esta te la dedico porque la letra y el sonido me hace recordar a ti :(💖
+                        </div>
+                    </div>
+                </a>
+            </li>
+
+            <li>
+                <span class="numero">2</span>
+                <a href="https://www.youtube.com/watch?v=o1LulB1uFOA" target="_blank" style="display:flex; align-items:center; text-decoration:none; color:inherit;">
+                    <img src="cancion2.jpeg" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px;">
+                    <div class="cancion">
+                        <strong>Mi Vida Entera - Morat</strong>
+                        <div class="artista">
+                            Esta cancion representa como me siento cuando estoy contigo y como mi corazon estalla por ti
+                        </div>
+                    </div>
+                </a>
+            </li>
+
+            <li>
+                <span class="numero">3</span>
+                <a href="https://www.youtube.com/watch?v=lTFN5EiGFw0" target="_blank" style="display:flex; align-items:center; text-decoration:none; color:inherit;">
+                    <img src="cancion3.jpeg" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px;">
+                    <div class="cancion">
+                        <strong>Bad Bunny - Enséñame a Bailar</strong>
+                        <div class="artista">
+                            Esta cancion aunque es movida me recuerda como se siente enamorarse de ti porque mi corazon es de arena pero tu estas dejando tus huellas.
+                        </div>
+                    </div>
+                </a>
+            </li>
+
+            <li>
+                <span class="numero">4</span>
+                <a href="https://www.youtube.com/watch?v=t9HOGGTqMOk" target="_blank" style="display:flex; align-items:center; text-decoration:none; color:inherit;">
+                    <img src="cancion4.jpeg" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-right:10px;">
+                    <div class="cancion">
+                        <strong>Feid - Corone</strong>
+                        <div class="artista">
+                            Esta cancion es importante para mi porque sabes que me encanta FEIDDDDD y representa lo que siento por ti.
+                        </div>
+                    </div>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</div>
+
+        <!-- Scene 3: Fotos -->
+<div class="scene" id="scene-3">
+    <div class="scene-card">
+        <h2>📸 Nuestros Recuerdos</h2>
+        <p style="margin-bottom: 20px; color: #666; text-align: center;">
+            Momentos especiales que he vivido contigo miamor...
+        </p>
+        
+        <div class="galeria">
+
+            <div class="foto-placeholder">
+                <img src="renata2.jpeg" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+                <p style="text-align:center; margin-top:8px;">Esta es la primera foto que nos tomamos, fue el inicio de la mejor historia, teamooooo miamor💖</p>
+            </div>
+
+            <div class="foto-placeholder">
+                <img src="renata1.jpeg" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+                <p style="text-align:center; margin-top:8px;">Esta foto es de una de las mejores salidas que recuerdo, cuando estabamos en el recreo, te juro fue un dia muy hermoso, besarnos tan intenso y no soltarnosss.</p>
+            </div>
+
+            <div class="foto-placeholder">
+                <img src="renata3.jpeg" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+                <p style="text-align:center; margin-top:8px;">Ni siquiera merece presentacion, una de las mejores salidas, fuimos a la basilica, estar en el cesped, estar arriba pero contigo, reirnos, besarnos y con el mismo outfit</p>
+            </div>
+
+            <div class="foto-placeholder">
+                <img src="renata4.jpeg" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+                <p style="text-align:center; margin-top:8px;">Es especial porque fue el ultimo dia que estuvimos juntos :(, ahi me di cuenta lo feliz que fui este semestre contigo, y que te amo demasiado :(, que sabia que te iba extrañar y no me equivoque hermosa</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+        <!-- Final message (shown after last scene) -->
+        <div class="scene" id="scene-final">
+            <div class="scene-card" style="text-align: center;">
+                <h2 style="border: none;">💖 Te Amo 💖</h2>
+                <p style="font-size: 1.3em; color: #e91e63;">
+                    Gracias por ser parte de mi vida. Eres lo mejor que me ha pasado.
+                </p>
+                <p style="margin-top: 20px; color: #666;">
+                    Con cariño, para el amor de mi vida y mi futura esposa 💖.
+                </p>
+                <div style="margin-top: 40px;">
+                    <button class="btn-comenzar" onclick="reiniciar()">
+                        Volver al inicio 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="scene-nav">
+        <button class="nav-btn" id="prevBtn" onclick="prevScene()" disabled>
+            ← Anterior
+        </button>
+        <button class="nav-btn" id="nextBtn" onclick="nextScene()">
+            Siguiente →
+        </button>
+    </div>
+
+    <script>
+        let currentScene = 0;
+        const totalScenes = 4; // 0: welcome, 1: carta, 2: playlist, 3: fotos, 4: final
+
+        function updateScene() {
+            // Update scene visibility
+            document.querySelectorAll('.scene').forEach((scene, index) => {
+                scene.classList.remove('active');
+                if (index === currentScene) {
+                    scene.classList.add('active');
+                }
+            });
+
+            // Update indicators
+            document.querySelectorAll('.indicator').forEach((indicator, index) => {
+                indicator.classList.remove('active');
+                if (index === currentScene - 1 && currentScene > 0 && currentScene < 4) {
+                    indicator.classList.add('active');
+                }
+            });
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentScene === 0 || currentScene === 4;
+            
+            if (currentScene === 3) {
+                document.getElementById('nextBtn').innerHTML = 'Final 💖';
+            } else if (currentScene === 4) {
+                document.getElementById('nextBtn').innerHTML = 'Siguiente →';
+            } else {
+                document.getElementById('nextBtn').innerHTML = 'Siguiente →';
+            }
+        }
+
+        function goToScene(sceneIndex) {
+            currentScene = sceneIndex;
+            updateScene();
+            window.scrollTo(0, 0);
+        }
+
+        function nextScene() {
+            if (currentScene < totalScenes) {
+                currentScene++;
+                updateScene();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function prevScene() {
+            if (currentScene > 0) {
+                currentScene--;
+                updateScene();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextScene();
+            } else if (e.key === 'ArrowLeft') {
+                prevScene();
+            }
+        });
+
+        // Efecto de música al hacer clic en las canciones
+        document.querySelectorAll('.playlist li').forEach((item) => {
+            item.addEventListener('click', () => {
+                item.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    item.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // Mensaje especial al hacer clic en las fotos
+        document.querySelectorAll('.foto-placeholder').forEach((foto) => {
+            foto.addEventListener('click', () => {
+                alert('💖 Este momento contigo es muy especial para mí 💖');
+            });
+        });
+
+        // Initialize
+        updateScene();
+
+        // Funciones para los botones
+        function crearPlaylist() {
+            alert('💖 Abre Spotify y crea una playlist llamada "Para Mi Amor" con estas canciones 💖');
+        }
+
+        function reiniciar() {
+            goToScene(0);
+        }
+    </script>
+</body>
+</html>
